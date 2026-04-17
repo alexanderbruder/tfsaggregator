@@ -112,6 +112,11 @@
       <Platform>Any CPU</Platform>
       <ExtendedClientVersion>19.227.0-preview</ExtendedClientVersion>
     </TfsVersion>
+    <TfsVersion Include="2022.2" >
+      <Alt>2022u2</Alt>
+      <Platform>Any CPU</Platform>
+      <ExtendedClientVersion>19.225.2</ExtendedClientVersion>
+    </TfsVersion>
   </ItemGroup>
 
 

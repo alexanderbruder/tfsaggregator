@@ -1,0 +1,19 @@
+Copy here the proper version of these Azure DevOps Server 2022.2 assemblies:
+
+Microsoft.TeamFoundation.Framework.Server.dll
+Microsoft.TeamFoundation.Server.Core.dll
+Microsoft.TeamFoundation.Server.Types.dll
+Microsoft.TeamFoundation.WorkItemTracking.Server.DataAccessLayer.dll
+Microsoft.TeamFoundation.WorkItemTracking.Server.DataServices.dll
+Microsoft.TeamFoundation.WorkItemTracking.Server.dll
+
+Note for Azure DevOps Server 2022.2:
+Starting with ADOS 2022.2 RTW (build 19.235.35102.1), Microsoft no longer ships the
+legacy Work Item Tracking Client OM in "Application Tier\Web Services\bin".
+The full client OM DLLs live in "Application Tier\Tools" instead, while the
+"bin" folder only contains Microsoft.TeamFoundation.WorkItemTracking.ClientSlim.dll.
+
+For the plugin to find its managed dependencies at runtime, a probing path is
+injected via the ServerPlugin app.config.
+
+The client object model assemblies are loaded from the NuGet package (Microsoft.TeamFoundationServer.ExtendedClient 19.225.2).

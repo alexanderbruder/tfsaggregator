@@ -7,7 +7,7 @@
         >
         true
     </RestoreLockedMode>
-    <DevelopmentTfsVersion>2022.1</DevelopmentTfsVersion>
+    <DevelopmentTfsVersion>2022.2</DevelopmentTfsVersion>
     <TfsVersion Condition="'$(TfsVersion)' == ''">$(DevelopmentTfsVersion)</TfsVersion>
     <AssemblyVersion Condition="'$(MajorMinorPatch)' != ''">$(MajorMinorPatch)</AssemblyVersion>
     <AssemblyFileVersion Condition="'$(MajorMinorPatch)' != ''">$(MajorMinorPatch)</AssemblyFileVersion>
@@ -36,6 +36,7 @@
     <KnownTfsVersion Include="2020"   />
     <KnownTfsVersion Include="2022"   />
     <KnownTfsVersion Include="2022.1"   />
+    <KnownTfsVersion Include="2022.2"   />
 
     <AssemblyAttribute Include="System.Reflection.AssemblyConfigurationAttribute">
       <_Parameter1>$(Configuration) [TFS $(TfsVersion)]</_Parameter1>
