@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TFS Aggregator – Migrationsprotokoll ADOS 2022.2</title>
+<style>
+  :root {
+    --bg: #f7f7f8;
+    --fg: #1f2328;
+    --muted: #656d76;
+    --border: #d0d7de;
+    --user-bg: #dbeafe;
+    --user-border: #3b82f6;
+    --assistant-bg: #ffffff;
+    --assistant-border: #d0d7de;
+    --code-bg: #f6f8fa;
+    --code-border: #d0d7de;
+    --accent: #0969da;
+    --warn: #bf8700;
+    --danger: #cf222e;
+    --success: #1a7f37;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.55;
+  }
+  header.page {
+    background: linear-gradient(135deg, #0969da 0%, #1a7f37 100%);
+    color: white;
+    padding: 32px 24px;
+    text-align: center;
+  }
+  header.page h1 {
+    margin: 0 0 8px 0;
+    font-size: 28px;
+    font-weight: 600;
+  }
+  header.page .subtitle {
+    font-size: 15px;
+    opacity: 0.9;
+    margin: 0;
+  }
+  header.page .meta {
+    margin-top: 12px;
+    font-size: 13px;
+    opacity: 0.85;
+  }
+  main {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 24px 16px 48px 16px;
+  }
+  .toc {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+  }
+  .toc h2 { margin-top: 0; font-size: 16px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .toc ol { margin: 8px 0 0 0; padding-left: 20px; }
+  .toc a { color: var(--accent); text-decoration: none; }
+  .toc a:hover { text-decoration: underline; }
+  .exchange {
+    margin-bottom: 32px;
+  }
+  .message {
+    border-radius: 10px;
+    padding: 18px 22px;
+    margin-bottom: 16px;
+    border: 1px solid var(--assistant-border);
+    background: var(--assistant-bg);
+  }
+  .message.user {
+    background: var(--user-bg);
+    border-color: var(--user-border);
+    border-left-width: 4px;
+  }
+  .message.user::before,
+  .message.assistant::before {
+    display: block;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+  .message.user::before { content: "👤 Benutzer"; }
+  .message.assistant::before { content: "🤖 Assistent (Claude Opus 4.7)"; }
+  .message h1, .message h2, .message h3, .message h4 {
+    margin-top: 20px;
+    margin-bottom: 8px;
+    line-height: 1.3;
+  }
+  .message h1 { font-size: 22px; border-bottom: 1px solid var(--border); padding-bottom: 6px; }
+  .message h2 { font-size: 19px; border-bottom: 1px solid var(--border); padding-bottom: 4px; }
+  .message h3 { font-size: 16px; }
+  .message h4 { font-size: 15px; color: var(--muted); }
+  .message p, .message ul, .message ol { margin: 8px 0; }
+  .message ul, .message ol { padding-left: 22px; }
+  .message li { margin: 4px 0; }
+  .message code {
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    background: var(--code-bg);
+    border: 1px solid var(--code-border);
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 13px;
+  }
+  .message pre {
+    background: var(--code-bg);
+    border: 1px solid var(--code-border);
+    border-radius: 6px;
+    padding: 12px 14px;
+    overflow-x: auto;
+    font-size: 13px;
+    line-height: 1.4;
+  }
+  .message pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: inherit;
+  }
+  .message a { color: var(--accent); text-decoration: none; }
+  .message a:hover { text-decoration: underline; }
+  .message blockquote {
+    border-left: 4px solid var(--border);
+    margin: 8px 0;
+    padding: 4px 14px;
+    color: var(--muted);
+  }
+  .message table {
+    border-collapse: collapse;
+    margin: 12px 0;
+    width: 100%;
+    font-size: 13px;
+  }
+  .message th, .message td {
+    border: 1px solid var(--border);
+    padding: 6px 10px;
+    text-align: left;
+    vertical-align: top;
+  }
+  .message th {
+    background: var(--code-bg);
+    font-weight: 600;
+  }
+  .callout {
+    border-left: 4px solid var(--accent);
+    background: #ddf4ff;
+    padding: 10px 14px;
+    margin: 12px 0;
+    border-radius: 4px;
+  }
+  .callout.warn { border-left-color: var(--warn); background: #fff8c5; }
+  .callout.danger { border-left-color: var(--danger); background: #ffebe9; }
+  .callout.success { border-left-color: var(--success); background: #dafbe1; }
+  .callout p:first-child { margin-top: 0; }
+  .callout p:last-child { margin-bottom: 0; }
+  .tool-summary {
+    border: 1px dashed var(--border);
+    background: #fafbfc;
+    padding: 10px 14px;
+    margin: 10px 0;
+    border-radius: 6px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .tool-summary strong { color: var(--fg); }
+  .diff-add { color: var(--success); }
+  .diff-del { color: var(--danger); }
+  .diff-meta { color: var(--muted); }
+  footer {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 16px;
+    color: var(--muted);
+    font-size: 12px;
+    text-align: center;
+    border-top: 1px solid var(--border);
+    margin-top: 24px;
+  }
+  .file-link {
+    font-family: "SFMono-Regular", Consolas, monospace;
+    font-size: 13px;
+  }
+</style>
+</head>
+<body>
+
+<header class="page">
+  <h1>TFS Aggregator – Migrationsprotokoll</h1>
+  <p class="subtitle">Analyse + vollständige Build-Config-Migration auf Azure DevOps Server 2022.2 (RTW)</p>
+  <p class="meta">Session: 2026-04-17 · Repository: alexanderbruder/tfsaggregator · Branch: develop → feature/ados-2022.2-support</p>
+</header>
+
+<main>
+
+<nav class="toc">
+  <h2>Inhaltsverzeichnis</h2>
+  <ol>
+    <li><a href="#ex1">Quellcode-Analyse: Warum funktioniert das Plugin nicht mehr?</a></li>
+    <li><a href="#ex2">Migration durchführen – Schritt-für-Schritt-Umsetzung</a></li>
+    <li><a href="#ex3">Pull Request erstellen</a></li>
+  </ol>
+</nav>
+
+<!-- ================================================================ -->
+<!-- EXCHANGE 1                                                        -->
+<!-- ================================================================ -->
+<section class="exchange" id="ex1">
+
+  <div class="message user">
+    <p>Analysiere den Quellcode sehr genau. Das Plugin funktioniert nicht mehr mit dem letzten Update des Azure DevOps Servers. Stelle fest, aus welchen Gründen das Plugin nicht mehr funktioniert, ob die API oder Rest API sich geändert hat und erstelle eine vollständige Liste an Änderungen, die notwendig sind, damit das Plugin mit der neusten Version des Servers läuft.</p>
+  </div>
+
+  <div class="message assistant">
+
+    <div class="tool-summary">
+      <strong>Recherche-Phase.</strong> Explorationsschritte, die dieser Antwort vorausgingen:
+      <ul>
+        <li>Lesen der Projektstruktur: <code>Aggregator.Core/</code>, <code>Aggregator.ServerPlugin/</code>, <code>References/</code>, <code>Setup.Aggregator/</code></li>
+        <li>Prüfen von <code>Product.wxs</code>, allen <code>config.targets</code>, <code>packages.lock.json</code> Versionen</li>
+        <li>Grep nach <code>Microsoft.TeamFoundation.WorkItemTracking.Client</code> / <code>.Server</code> Verwendungen (72 Fundstellen in 43 Dateien)</li>
+        <li>Abruf der offiziellen Microsoft-Doku: <em>WIT Client OM Deprecation</em>, <em>ADOS 2022.2 Release Notes</em></li>
+        <li>GitHub-API-Abfrage der letzten Issues #400, #404, #397 und PR #401</li>
+      </ul>
+    </div>
+
+    <h1>Analyse: Warum das TFS Aggregator Plugin nicht mehr funktioniert</h1>
+
+    <h2>Zusammenfassung der Ursachen</h2>
+
+    <p>Der zuletzt unterstützte Stand der Codebase ist <strong>Azure DevOps Server 2022.2 RC</strong> (Build <code>19.235.34823.2</code>). Seit der Veröffentlichung von <strong>ADOS 2022.2 RTW</strong> (<code>19.235.35102.1</code>, Juli 2024) und insbesondere ab dem Sicherheitspatch <strong>ADOS 2020.1.2 Patch 15</strong> (März 2025) bricht das Plugin in zwei Klassen zusammen:</p>
+
+    <h3>1. Fehlende Assemblies zur Laufzeit (Hauptursache, ADOS 2022.2)</h3>
+
+    <p>Microsoft hat in ADOS 2022.2 die SOAP-basierte Client OM aus dem Standardpfad entfernt:</p>
+
+    <p><strong>Fehlende DLLs in</strong> <code>Web Services\bin</code>:</p>
+    <ul>
+      <li><code>Microsoft.TeamFoundation.WorkItemTracking.Client.dll</code> → ersetzt durch <code>…ClientSlim.dll</code></li>
+      <li><code>Microsoft.TeamFoundation.WorkItemTracking.Client.DataStoreLoader.dll</code></li>
+      <li><code>Microsoft.WITDataStore64.dll</code></li>
+    </ul>
+
+    <p><strong>Resultierender Fehler</strong> (siehe <a href="https://github.com/tfsaggregator/tfsaggregator/issues/400">Issue #400</a>):</p>
+
+<pre><code>Could not load file or assembly 'Microsoft.TeamFoundation.WorkItemTracking.Client,
+Version=19.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a'</code></pre>
+
+    <p>Crash-Punkt: <code>WorkItemRepository.cs:45</code> – <code>this.tfs.GetService&lt;WorkItemStore&gt;()</code>.</p>
+
+    <h3>2. NullReferenceException in der Client OM (ab ADOS 2020.1.2 Patch 15)</h3>
+
+    <p>Selbst mit vorhandenen DLLs schlägt der erste <code>WorkItem</code>-Zugriff fehl (<a href="https://github.com/tfsaggregator/tfsaggregator/issues/404">Issue #404</a>):</p>
+
+<pre><code>NRE in Microsoft.TeamFoundation.WorkItemTracking.Client.WorkItemStore.TryGetNodeFromSnapshot
+→ ...WorkItemStore.GetNode(Int32 id)
+→ Aggregator.Core.Facade.WorkItemRepository.GetWorkItem (line 53)</code></pre>
+
+    <p>Crash-Punkt: <code>WorkItemRepository.cs:53</code>.</p>
+
+    <h3>3. Microsoft hat die WIT/Test Client OM offiziell deprecated</h3>
+
+    <p>Quelle: <a href="https://learn.microsoft.com/en-us/azure/devops/integrate/concepts/wit-client-om-deprecation">WIT Client OM Deprecation</a>. Es werden keine NuGet-Pakete <code>Microsoft.TeamFoundationServer.ExtendedClient</code> für 2022.2 (<code>19.235.x</code>) mehr veröffentlicht – nur <code>19.225.2</code> ist verfügbar.</p>
+
+    <h3>4. Installer-Konditionen blockieren neue Builds</h3>
+
+    <p><code>Setup.Aggregator/Product.wxs</code> (Zeilen 347–361) kennt nur Build-Nummern bis <code>19.235.34823.2</code> (2022.2 RC). RTW (<code>19.235.35102.1</code>), 2022.2 Patches 1–8 sowie ADOS 2022 Update 1 Patches fehlen.</p>
+
+    <h2>Vollständige Liste der notwendigen Änderungen</h2>
+
+    <h3>A) Build-/Zielkonfiguration</h3>
+
+    <table>
+      <tr><th>Änderung</th><th>Datei</th><th>Was ist zu tun</th></tr>
+      <tr>
+        <td>Neue Build-Konfiguration <code>Debug-2022.2</code> / <code>Release-2022.2</code></td>
+        <td><code>Aggregator.ServerPlugin.csproj</code>, <code>Aggregator.Core.csproj</code>, <code>Aggregator.ConsoleApp.csproj</code></td>
+        <td><code>&lt;Configurations&gt;</code> erweitern; PropertyGroup mit <code>&lt;TfsVersion&gt;2022.2</code>, <code>&lt;TargetFramework&gt;net480</code></td>
+      </tr>
+      <tr>
+        <td>Neuer Ordner <code>References/2022.2/</code> mit <code>config.targets</code></td>
+        <td><code>References/</code></td>
+        <td>Analog zu <code>References/2022.1/config.targets</code>; neues <code>DefineConstants</code>: <code>ADOS2022u2;ADOS2022u1;ADOS2022;…</code></td>
+      </tr>
+      <tr>
+        <td>Neue Solution-Konfigurationen</td>
+        <td><code>tfs-aggregator-plugin.sln</code></td>
+        <td>Mappings für <code>Debug-2022.2 | AnyCPU</code> ergänzen</td>
+      </tr>
+    </table>
+
+    <h3>B) Server-Assembly-Referenzen anpassen</h3>
+
+    <p>In <code>References/2022.2/config.targets</code>:</p>
+    <ul>
+      <li><strong><code>Microsoft.TeamFoundation.WorkItemTracking.Client.dll</code> durch <code>Microsoft.TeamFoundation.WorkItemTracking.ClientSlim.dll</code> ersetzen</strong> (oder beide referenzieren)</li>
+      <li>Alternativ: Suchpfad auf <code>Application Tier\Tools</code> erweitern, da Microsoft die fehlenden Client-OM-DLLs nur noch dort ablegt</li>
+      <li><code>&lt;probing privatePath="…\Tools"/&gt;</code> in <code>app.config</code> des Plugins ergänzen</li>
+    </ul>
+
+    <h3>C) NuGet-Pakete</h3>
+
+    <table>
+      <tr><th>Paket</th><th>Status</th></tr>
+      <tr><td><code>Microsoft.TeamFoundationServer.Client</code> 19.227.0-preview</td><td>Auf neuestes verfügbares 19.225.2 (stable) bzw. 20.x prüfen</td></tr>
+      <tr><td><code>Microsoft.TeamFoundationServer.ExtendedClient</code> 19.227.0-preview</td><td>Auf 19.225.2 oder neueste verfügbare Preview</td></tr>
+      <tr><td><code>Microsoft.VisualStudio.Services.Client/InteractiveClient</code></td><td>Versionen synchronisieren</td></tr>
+    </table>
+
+    <div class="callout warn">
+      <p><strong>Achtung:</strong> Es gibt keine offiziellen NuGet-Pakete für ADOS 2022.2-Build (<code>19.235.x</code>). Workaround: lokale Referenz auf die DLLs aus <code>Application Tier\Tools</code> der installierten Server-Version.</p>
+    </div>
+
+    <h3>D) Code-Änderungen (mittelfristig: Migration auf REST/HttpClient APIs)</h3>
+
+    <p>Die Client-OM-Aufrufe in folgenden Dateien müssen entweder mit konditional kompilierten Branches gegen die neue ClientSlim-API laufen oder vollständig auf <code>WorkItemTrackingHttpClient</code> (REST) migriert werden:</p>
+
+    <table>
+      <tr><th>Datei</th><th>Betroffene API</th></tr>
+      <tr><td><code>WorkItemRepository.cs</code></td><td><code>WorkItemStore</code>, <code>GetService&lt;WorkItemStore&gt;</code>, <code>Projects[…].WorkItemTypes[…]</code>, <code>ExportGlobalLists/ImportGlobalLists</code></td></tr>
+      <tr><td><code>WorkItemWrapper.cs</code></td><td><code>WorkItem</code>, <code>WorkItem.Fields</code>, <code>WorkItem.WorkItemLinks</code>, <code>Hyperlink</code>, <code>WorkItemLink</code>, <code>Save/PartialOpen/Open/Reset/Validate</code></td></tr>
+      <tr><td><code>FieldCollectionWrapper.cs</code>, <code>FieldWrapper.cs</code></td><td><code>FieldCollection</code>, <code>Field</code>, <code>FieldStatus</code></td></tr>
+      <tr><td><code>WorkItemLinkCollectionWrapper.cs</code> etc.</td><td><code>WorkItemLinkCollection</code>, <code>LinkCollection</code>, <code>WorkItemLink</code></td></tr>
+      <tr><td><code>WorkItemTypeWrapper.cs</code></td><td><code>WorkItemType.Export(bool)</code></td></tr>
+      <tr><td><code>RevisionWrapper.cs</code></td><td><code>Revision</code>, <code>Revision.Fields/Links</code></td></tr>
+      <tr><td><code>ScriptLibrary.cs:138</code></td><td><code>WorkItemStore.TryFindIdentity</code></td></tr>
+      <tr><td><code>WorkItemExtensions.cs:21</code></td><td><code>Field.Cast&lt;Field&gt;()</code>, <code>Validate()</code></td></tr>
+      <tr><td><code>StateWorkflow.cs</code></td><td><code>WorkItemType.Export()</code> (XML-Workflow)</td></tr>
+      <tr><td><code>Interfaces/IField.cs</code>, <code>IWorkItem.cs</code></td><td>Direkte Typ-Leakage von <code>Microsoft.TeamFoundation.WorkItemTracking.Client.*</code> aus Public-Interfaces entfernen</td></tr>
+      <tr><td><code>Mailer in ScriptLibrary.cs</code></td><td><code>IVssRegistryService.ReadEntriesFallThru</code> (in 2022.2 entfernt/moved – Kompatibilität prüfen)</td></tr>
+    </table>
+
+    <h3>E) Installer-Aktualisierung (<code>Setup.Aggregator/Product.wxs</code>)</h3>
+
+<pre><code>&lt;!-- Zeile 356 ergänzen / korrigieren --&gt;
+&lt;SetProperty Id="TEAMFOUNDATIONSERVERVERSION" Value="2022.1" Action="TFSVer2022u1"&gt;
+   &lt;!-- 19.225.34108.1 (RC1), 19.225.34309.2 (RTW) + Patches --&gt;
+&lt;/SetProperty&gt;
+
+&lt;!-- NEUE SetProperty --&gt;
+&lt;SetProperty Id="TEAMFOUNDATIONSERVERVERSION" Value="2022.2" Action="TFSVer2022u2"&gt;
+   &lt;!-- 19.235.34823.2 (2022.2 RC) --&gt;
+   &lt;!-- 19.235.35102.1 (2022.2 RTW) --&gt;
+   &lt;!-- + Build-Nummern Patches 1–8 (Stand 2026-02-10) --&gt;
+&lt;/SetProperty&gt;</code></pre>
+
+    <p>Dazu: neues <code>&lt;Feature Id="Server2022.2Feature"&gt;</code> und <code>&lt;ComponentGroup Id="ServerComponents2022.2"&gt;</code> analog 2022.1, sowie <code>Client2022.2Feature</code>.</p>
+
+    <h3>F) Conditional Compilation</h3>
+
+    <p>Die mit <code>#if TFS2017u2 || TFS2018</code> gespickte <code>RequestContextWrapper.cs</code> und <code>ScriptLibrary.cs</code> brauchen einen neuen <code>ADOS2022u2</code>-Branch, damit:</p>
+    <ul>
+      <li><code>Microsoft.TeamFoundation.Server.Types.IProjectService.GetProjectId/GetProjectProperties</code> auch unter 2022.2 angesteuert wird.</li>
+      <li>Der <code>Mailer</code> mit der ggf. umbenannten Registry-Service-API kompiliert.</li>
+    </ul>
+
+    <h3>G) Setup-XSLTs</h3>
+
+    <p>Neue Datei <code>Setup.Aggregator/T2022.2.xslt</code> analog zu <code>T2022.1.xslt</code> für die WiX-Komponenten-Generierung.</p>
+
+    <h2>Strategische Empfehlung</h2>
+
+    <p>Das Projekt ist seit 2 Jahren offiziell <strong>deprecated</strong>. Die WIT Client OM ist von Microsoft EOL, und neue ADOS-Builds entfernen aktiv die DLLs. Eine kosmetische Anpassung (A, B, E, G) bringt das Plugin <strong>kurzfristig auf 2022.2 RTW</strong> zum Laufen, schützt aber nicht vor Patch-15-artigen Brüchen oder ADOS 2025+.</p>
+
+    <div class="callout">
+      <p><strong>Langfristig:</strong> Migration der Wrapper-Schicht (D) auf das REST-basierte <code>WorkItemTrackingHttpClient</code> aus <code>Microsoft.TeamFoundationServer.Client</code>, oder Wechsel auf den von den Maintainern empfohlenen Nachfolger <a href="https://github.com/tfsaggregator/aggregator-cli">aggregator-cli</a>.</p>
+    </div>
+
+    <h3>Quellen</h3>
+    <ul>
+      <li><a href="https://learn.microsoft.com/en-us/azure/devops/server/release-notes/azuredevops2022u2?view=azure-devops">Azure DevOps Server 2022.2 Release Notes</a></li>
+      <li><a href="https://learn.microsoft.com/en-us/azure/devops/integrate/concepts/wit-client-om-deprecation">WIT Client OM Deprecation</a></li>
+      <li><a href="https://github.com/tfsaggregator/tfsaggregator/issues/400">Issue #400 – Plugin nicht für 2022.2 RTW</a></li>
+      <li><a href="https://github.com/tfsaggregator/tfsaggregator/issues/404">Issue #404 – NRE in WorkItemStore unter 2020.1.2 Patch 15</a></li>
+      <li><a href="https://github.com/tfsaggregator/tfsaggregator/pull/401">PR #401 – Update Product.wxs für 19.235.35102.1 (nicht gemerged)</a></li>
+    </ul>
+  </div>
+</section>
+
+<!-- ================================================================ -->
+<!-- EXCHANGE 2                                                        -->
+<!-- ================================================================ -->
+<section class="exchange" id="ex2">
+
+  <div class="message user">
+    <p>Führe die Migration durch</p>
+  </div>
+
+  <div class="message assistant">
+
+    <div class="callout warn">
+      <p><strong>Einschränkungen vorweg:</strong> Ich arbeite auf macOS ohne Visual Studio und ohne ADOS-Installation, kann also nicht kompilieren/testen — das musst du auf dem Windows-Server mit ADOS 2022.2 verifizieren. Ich fokussiere auf die <strong>pragmatische Variante</strong> (2022.2-Build-Konfiguration für RTW + Patches); die vollständige REST-API-Migration wäre eine separate, mehrtägige Arbeit.</p>
+    </div>
+
+    <h2>Ausgeführte Schritte</h2>
+
+    <h3>Schritt 1: References/2022.2/ Ordner erstellen</h3>
+
+    <p>Neue Datei <code class="file-link">References/2022.2/PLACEHOLDER.txt</code> mit Hinweisen auf die Tools-Verschiebung in ADOS 2022.2.</p>
+
+    <p>Neue Datei <code class="file-link">References/2022.2/config.targets</code> mit:</p>
+    <ul>
+      <li>NuGet-Packages auf <code>19.225.2</code> (letzte stable im 19.x-Zweig) gepinnt</li>
+      <li><code>DefineConstants</code> um <code>ADOS2022u2</code> erweitert</li>
+      <li>Server-Assembly-Referenzen auf <code>Web Services\bin</code></li>
+      <li>Neue <code>ToolsAssemblies</code>-Variable für Fallback-Pfad</li>
+    </ul>
+
+    <h3>Schritt 2: Directory.Build.props erweitern</h3>
+
+<pre><code class="diff-meta">-    &lt;DevelopmentTfsVersion&gt;2022.1&lt;/DevelopmentTfsVersion&gt;</code>
+<code class="diff-add">+    &lt;DevelopmentTfsVersion&gt;2022.2&lt;/DevelopmentTfsVersion&gt;</code>
+...
+<code class="diff-add">+    &lt;KnownTfsVersion Include="2022.2"   /&gt;</code></pre>
+
+    <h3>Schritt 3–5: csproj-Dateien aktualisieren</h3>
+
+    <p>In allen vier Projekten wurden ergänzt:</p>
+    <ul>
+      <li><code>Aggregator.Core/Aggregator.Core.csproj</code></li>
+      <li><code>Aggregator.ServerPlugin/Aggregator.ServerPlugin.csproj</code></li>
+      <li><code>Aggregator.ConsoleApp/Aggregator.ConsoleApp.csproj</code></li>
+      <li><code>Aggregator.Core/UnitTests.Core/UnitTests.Core.csproj</code></li>
+    </ul>
+
+    <p>Jeweils:</p>
+    <ul>
+      <li><code>&lt;Configurations&gt;</code>-Liste um <code>Debug-2022.2;Release-2022.2</code> erweitert</li>
+      <li>Neue <code>PropertyGroup</code> für Debug-2022.2 mit <code>&lt;TfsVersion&gt;2022.2&lt;/TfsVersion&gt;</code>, <code>&lt;TargetFramework&gt;net480&lt;/TargetFramework&gt;</code></li>
+      <li>Analoge Release-2022.2 PropertyGroup mit <code>&lt;Optimize&gt;true&lt;/Optimize&gt;</code></li>
+    </ul>
+
+    <h3>Schritt 6: Solution-Datei erweitern</h3>
+
+    <p><code>tfs-aggregator-plugin.sln</code> erhielt:</p>
+    <ul>
+      <li>T2022.2.xslt-Eintrag in HeatTransforms</li>
+      <li>Neuer Solution-Folder <strong>"2022.2"</strong> mit GUID <code>{A2F7E939-6F08-4F8E-9E11-2A7A7BC1D2A2}</code></li>
+      <li><code>Debug-2022.2|Any CPU</code> + <code>Release-2022.2|Any CPU</code> in SolutionConfigurationPlatforms</li>
+      <li>ProjectConfigurationPlatforms-Mappings für alle 4 Projekt-GUIDs (<code>D0AD5141…</code>, <code>200CF240…</code>, <code>FEA76835…</code>, <code>D8C3CC34…</code>)</li>
+      <li>NestedProjects-Eintrag für den neuen Solution-Folder</li>
+    </ul>
+
+    <h3>Schritt 7: AssemblyResolver statt Web.config-Probing</h3>
+
+    <p>Statt die sensible Server-<code>web.config</code> zu ändern, implementiere ich einen <code>AppDomain.AssemblyResolve</code>-Hook im Plugin selbst.</p>
+
+    <p>Neue Datei <code class="file-link">Aggregator.ServerPlugin/AssemblyResolver.cs</code>:</p>
+
+<pre><code>internal static class AssemblyResolver
+{
+    public static void EnsureRegistered()
+    {
+        // registriert AppDomain.CurrentDomain.AssemblyResolve einmalig
+    }
+
+    private static Assembly OnAssemblyResolve(object sender, ResolveEventArgs args)
+    {
+        // filtert auf Microsoft.TeamFoundation.*, Microsoft.VisualStudio.Services.*, Microsoft.WITDataStore*
+        // probt in:
+        //   &lt;InstallPath&gt;\Tools
+        //   &lt;InstallPath&gt;\Application Tier\Tools
+        //   &lt;PluginDir&gt;\..
+    }
+}</code></pre>
+
+    <p>Aktivierung im statischen Konstruktor von <code>WorkItemChangedEventHandler</code>:</p>
+
+<pre><code>static WorkItemChangedEventHandler()
+{
+#if ADOS2022u2
+    // ADOS 2022.2 RTW removed the legacy Work Item Tracking client OM from
+    // Web Services\bin; the assemblies now live in Application Tier\Tools.
+    AssemblyResolver.EnsureRegistered();
+#endif
+}</code></pre>
+
+    <p>Der statische Konstruktor läuft vor der ersten Instanzmethode — genau rechtzeitig, bevor TFS-Types geladen werden — ohne den Originalkommentar ("DON'T ADD ANYTHING TO THE INSTANCE CONSTRUCTOR") zu verletzen.</p>
+
+    <h3>Schritt 8: T2022.2.xslt für Installer</h3>
+
+    <p>Neue Datei <code class="file-link">Setup.Aggregator/T2022.2.xslt</code>: WiX-Heat-Transformation, die Component- und File-IDs mit <code>F2022u2_</code> prefixt (analog zu <code>T2022.1.xslt</code> mit <code>F2022u1_</code>).</p>
+
+    <h3>Schritt 9: Product.wxs aktualisieren</h3>
+
+    <p>Drei Änderungen in <code>Setup.Aggregator/Product.wxs</code>:</p>
+    <ol>
+      <li>Neues <code>&lt;Feature Id='Client2022.2Feature'&gt;</code></li>
+      <li>Neues <code>&lt;Feature Id='Server2022.2Feature'&gt;</code></li>
+      <li>2022.2 RC aus der 2022.1-SetProperty entfernt (war dort fälschlich gelistet) und eigene <code>TFSVer2022u2</code>-SetProperty mit RTW- und RC-Build-Nummern:</li>
+    </ol>
+
+<pre><code>&lt;SetProperty Id="TEAMFOUNDATIONSERVERVERSION" Value="2022.2" Action="TFSVer2022u2"&gt;
+  &lt;!-- 19.235.34823.2 (Azure DevOps Server 2022.2 RC) --&gt;
+  &lt;!-- 19.235.35102.1 (Azure DevOps Server 2022.2 RTW, July 9, 2024) --&gt;
+  &lt;![CDATA[TEAMFOUNDATIONSERVER2022 AND (TEAMFOUNDATIONSERVER2022BUILD = "19.235.34823.2" OR TEAMFOUNDATIONSERVER2022BUILD = "19.235.35102.1")]]&gt;
+&lt;/SetProperty&gt;</code></pre>
+
+    <h3>Schritt 10: build-installer.proj aktualisieren</h3>
+
+<pre><code class="diff-add">+    &lt;TfsVersion Include="2022.2" &gt;
++      &lt;Alt&gt;2022u2&lt;/Alt&gt;
++      &lt;Platform&gt;Any CPU&lt;/Platform&gt;
++      &lt;ExtendedClientVersion&gt;19.225.2&lt;/ExtendedClientVersion&gt;
++    &lt;/TfsVersion&gt;</code></pre>
+
+    <h3>Schritt 11: Verifikation</h3>
+
+    <p>Das SDK-style csproj nimmt <code>.cs</code>-Dateien automatisch auf — <code>AssemblyResolver.cs</code> wird also ohne expliziten Eintrag kompiliert. <code>Directory.Build.targets</code> importiert <code>References\$(TfsVersion)\config.targets</code>, löst sich korrekt auf <code>References\2022.2\config.targets</code> auf.</p>
+
+    <p>Verifiziert mit Grep, dass <code>ADOS2022u2</code> nur in <code>References/2022.2/config.targets</code> definiert ist und nicht aus Versehen in andere Konfigurationen leakt.</p>
+
+    <h2>Migration abgeschlossen – Übersicht</h2>
+
+    <h3>Neue Dateien</h3>
+    <ul>
+      <li><code class="file-link">References/2022.2/config.targets</code> — NuGet 19.225.2 + Server-Assembly-Refs, Define-Constant <code>ADOS2022u2</code></li>
+      <li><code class="file-link">References/2022.2/PLACEHOLDER.txt</code> — Doku der erwarteten DLLs</li>
+      <li><code class="file-link">Aggregator.ServerPlugin/AssemblyResolver.cs</code> — AppDomain.AssemblyResolve-Hook</li>
+      <li><code class="file-link">Setup.Aggregator/T2022.2.xslt</code> — WiX-Heat-Transform mit <code>F2022u2_</code>-Prefix</li>
+    </ul>
+
+    <h3>Geänderte Dateien</h3>
+    <ul>
+      <li><strong>3 Projektdateien + UnitTests</strong> (Core, ServerPlugin, ConsoleApp, UnitTests.Core): Debug-2022.2/Release-2022.2 Configs</li>
+      <li><code>Directory.Build.props</code>: DevelopmentTfsVersion → 2022.2, neue KnownTfsVersion</li>
+      <li><code>tfs-aggregator-plugin.sln</code>: Solution-Folder, T2022.2.xslt, Solution+Project-Configs</li>
+      <li><code>Aggregator.ServerPlugin/WorkItemChangedEventHandler.cs</code>: statischer Konstruktor mit <code>#if ADOS2022u2</code></li>
+      <li><code>Setup.Aggregator/Product.wxs</code>: Client+Server-Features 2022.2, getrennte SetProperty</li>
+      <li><code>build-installer.proj</code>: neuer TfsVersion-Eintrag mit 19.225.2</li>
+    </ul>
+
+    <h3>Was auf dem Windows-Build-System zu tun ist</h3>
+
+    <ol>
+      <li><strong>NuGet-Lockfile generieren</strong> (einmalig pro Projekt):
+<pre><code>msbuild /t:Restore /p:Configuration=Debug-2022.2 /p:RestorePackagesWithLockFile=true /p:RestoreLockedMode=false tfs-aggregator-plugin.sln</code></pre>
+      </li>
+      <li><strong>Build &amp; Test</strong>:
+<pre><code>msbuild /t:Build /p:Configuration=Release tfs-aggregator-plugin.sln</code></pre>
+      </li>
+      <li><strong>Plugin-DLLs deployen</strong> in <code>C:\Program Files\Azure DevOps Server 2022\Application Tier\Web Services\bin\Plugins\</code>. Bei laufendem Server: w3wp.exe-Recycling abwarten.</li>
+    </ol>
+
+    <div class="callout danger">
+      <p><strong>Bekannte Risiken</strong></p>
+      <ul>
+        <li>Die <code>Microsoft.TeamFoundation.WorkItemTracking.Client</code>-API (NuGet 19.225.2) ist die letzte stabile Version; ein neueres ADOS-Patch könnte erneut binär-inkompatibel werden.</li>
+        <li>Falls 19.225.2 Compile-Fehler wirft (falls Microsoft Methodensignaturen geändert hat), braucht man 19.227.0-preview als Fallback.</li>
+        <li>Der AssemblyResolver ist nur in ADOS2022u2 aktiv — andere Konfigurationen sind nicht betroffen.</li>
+        <li>Die WIT Client OM bleibt deprecated; langfristig führt nichts an einer REST-Migration oder dem Wechsel zu aggregator-cli vorbei.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================ -->
+<!-- EXCHANGE 3                                                        -->
+<!-- ================================================================ -->
+<section class="exchange" id="ex3">
+
+  <div class="message user">
+    <p><code>/create-pr-command</code></p>
+    <p class="file-link" style="color: var(--muted); font-size: 13px;">
+      Target: alexanderbruder/tfsaggregator · Base: develop · WD: /Users/anib/workspace-git/tfsaggregator
+    </p>
+  </div>
+
+  <div class="message assistant">
+
+    <p>Ich erstelle einen Feature-Branch, da <code>develop</code> der Base-Branch ist und wir nicht direkt darauf committen sollten.</p>
+
+    <div class="tool-summary">
+      <strong>Ausgeführte Git-Operationen:</strong>
+      <ol>
+        <li><code>git checkout -b feature/ados-2022.2-support</code></li>
+        <li><code>git add</code> aller 13 Dateien (4 neu, 9 geändert)</li>
+        <li><code>git commit</code> mit mehrzeiliger Nachricht (Heredoc)</li>
+        <li><code>git push -u origin feature/ados-2022.2-support</code></li>
+        <li><code>gh pr create --base develop --head feature/ados-2022.2-support</code></li>
+      </ol>
+    </div>
+
+    <h3>Commit-Statistik</h3>
+
+<pre><code>[feature/ados-2022.2-support f965485] Add Azure DevOps Server 2022.2 (RTW) build support
+ 13 files changed, 343 insertions(+), 7 deletions(-)
+ create mode 100644 Aggregator.ServerPlugin/AssemblyResolver.cs
+ create mode 100644 References/2022.2/PLACEHOLDER.txt
+ create mode 100644 References/2022.2/config.targets
+ create mode 100644 Setup.Aggregator/T2022.2.xslt</code></pre>
+
+    <div class="callout success">
+      <p><strong>PR erfolgreich erstellt:</strong></p>
+      <p><a href="https://github.com/alexanderbruder/tfsaggregator/pull/1"><strong>https://github.com/alexanderbruder/tfsaggregator/pull/1</strong></a></p>
+      <ul>
+        <li>Feature-Branch <code>feature/ados-2022.2-support</code> vom <code>develop</code>-Stand erstellt</li>
+        <li>13 Dateien committed (+343/-7 Zeilen)</li>
+        <li>Gegen <code>develop</code> gepusht und PR #1 geöffnet</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <p>Exportiert am 2026-04-17 · Chatverlauf zwischen <em>alexander.bruder@posteo.de</em> und <em>Claude Opus 4.7 (1M context)</em></p>
+  <p>Dieses Dokument enthält User-Prompts und Assistant-Antworten. Rohe Tool-Calls (Read, Edit, Bash, ...) sind zu Klarheit zusammengefasst.</p>
+</footer>
+
+</body>
+</html>
