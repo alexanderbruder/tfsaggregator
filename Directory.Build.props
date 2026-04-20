@@ -38,6 +38,7 @@
     <KnownTfsVersion Include="2022.1"   />
     <KnownTfsVersion Include="2022.2"   />
     <KnownTfsVersion Include="2025"   />
+    <KnownTfsVersion Include="2026"   />
 
     <AssemblyAttribute Include="System.Reflection.AssemblyConfigurationAttribute">
       <_Parameter1>$(Configuration) [TFS $(TfsVersion)]</_Parameter1>

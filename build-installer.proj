@@ -127,6 +127,11 @@
       <Platform>Any CPU</Platform>
       <ExtendedClientVersion>19.225.2</ExtendedClientVersion>
     </TfsVersion>
+    <TfsVersion Include="2026" Condition=" '$(BuildAllTfsVersions)' == 'true' or '$(InstallerTfsVersion)' == '2026' ">
+      <Alt>2026</Alt>
+      <Platform>Any CPU</Platform>
+      <ExtendedClientVersion>19.225.2</ExtendedClientVersion>
+    </TfsVersion>
   </ItemGroup>
 
 
@@ -167,8 +172,8 @@
       <!-- Exclude non-redistributable assemblies -->
       <cliBin Include="$(MSBuildProjectDirectory)\Aggregator.ConsoleApp\bin\$(CurrentFlavor)\**\*.dll" Exclude="*.Server.*" />
       <!-- HACK this unmanaged library is not picked up automatically via references -->
-      <cliBin Condition="'$(ExtendedClientVersion)'!=''" Include="$(MSBuildProjectDirectory)\Aggregator.ConsoleApp\bin\$(CurrentFlavor)\Microsoft.WITDataStore32.dll" />
-      <cliBin Condition="'$(ExtendedClientVersion)'!=''" Include="$(MSBuildProjectDirectory)\Aggregator.ConsoleApp\bin\$(CurrentFlavor)\Microsoft.WITDataStore64.dll" />
+      <cliBin Condition="'$(ExtendedClientVersion)'!='' and Exists('$(MSBuildProjectDirectory)\Aggregator.ConsoleApp\bin\$(CurrentFlavor)\Microsoft.WITDataStore32.dll')" Include="$(MSBuildProjectDirectory)\Aggregator.ConsoleApp\bin\$(CurrentFlavor)\Microsoft.WITDataStore32.dll" />
+      <cliBin Condition="'$(ExtendedClientVersion)'!='' and Exists('$(MSBuildProjectDirectory)\Aggregator.ConsoleApp\bin\$(CurrentFlavor)\Microsoft.WITDataStore64.dll')" Include="$(MSBuildProjectDirectory)\Aggregator.ConsoleApp\bin\$(CurrentFlavor)\Microsoft.WITDataStore64.dll" />
       <cliBin Include="$(MSBuildProjectDirectory)\Aggregator.ConsoleApp\bin\$(CurrentFlavor)\**\*.pdb" Exclude="*.Server.*" />
     </ItemGroup>
     <ItemGroup>
@@ -205,6 +210,23 @@
       Transforms="$(SetupProjectDir)\T$(CurrentTfsVersion).xslt"
       SuppressCom="True" SuppressRootDirectory="True" SuppressRegistry="True"
       ToolPath="$(WixToolPath)" ContinueOnError="WarnAndContinue" RunAsSeparateProcess="$(RunWixToolsOutOfProc)" />
+
+    <!--
+      When a version flavor has no harvested binaries, heat may skip output.
+      Emit an empty ComponentGroup placeholder so WiX linking can still succeed.
+    -->
+    <WriteLinesToFile
+      File="$(IntermediateOutputPath)\_cliBin_$(CurrentTfsVersion).wxs"
+      Condition="!Exists('$(IntermediateOutputPath)\_cliBin_$(CurrentTfsVersion).wxs')"
+      Overwrite="true"
+      Encoding="UTF-8"
+      Lines="&lt;Wix xmlns=&quot;http://schemas.microsoft.com/wix/2006/wi&quot;&gt;&#x0A;  &lt;Fragment&gt;&#x0A;    &lt;ComponentGroup Id=&quot;ClientComponents$(CurrentTfsVersion)&quot; /&gt;&#x0A;  &lt;/Fragment&gt;&#x0A;&lt;/Wix&gt;" />
+    <WriteLinesToFile
+      File="$(IntermediateOutputPath)\_srvBin_$(CurrentTfsVersion).wxs"
+      Condition="!Exists('$(IntermediateOutputPath)\_srvBin_$(CurrentTfsVersion).wxs')"
+      Overwrite="true"
+      Encoding="UTF-8"
+      Lines="&lt;Wix xmlns=&quot;http://schemas.microsoft.com/wix/2006/wi&quot;&gt;&#x0A;  &lt;Fragment&gt;&#x0A;    &lt;ComponentGroup Id=&quot;ServerComponents$(CurrentTfsVersion)&quot; /&gt;&#x0A;  &lt;/Fragment&gt;&#x0A;&lt;/Wix&gt;" />
 
   </Target>
 
