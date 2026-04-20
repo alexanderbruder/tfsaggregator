@@ -85,6 +85,24 @@
           <![CDATA[TEAMFOUNDATIONSERVERVERSION<>"2022.1"]]>
         </Condition>
       </Feature>
+      <Feature Id='Client2022.2Feature' Title='Client for Azure DevOps Server 2022.2' Level='1' AllowAdvertise='no'>
+        <ComponentGroupRef Id="ClientComponents2022.2"/>
+        <Condition Level="1000">
+          <![CDATA[TEAMFOUNDATIONSERVERVERSION<>"2022.2"]]>
+        </Condition>
+      </Feature>
+      <Feature Id='Client2025Feature' Title='Client for Azure DevOps Server 2025' Level='1' AllowAdvertise='no'>
+        <ComponentGroupRef Id="ClientComponents2025"/>
+        <Condition Level="1000">
+          <![CDATA[TEAMFOUNDATIONSERVERVERSION<>"2025"]]>
+        </Condition>
+      </Feature>
+      <Feature Id='Client2026Feature' Title='Client for Azure DevOps Server 2026' Level='1' AllowAdvertise='no'>
+        <ComponentGroupRef Id="ClientComponents2026"/>
+        <Condition Level="1000">
+          <![CDATA[TEAMFOUNDATIONSERVERVERSION<>"2026"]]>
+        </Condition>
+      </Feature>
     </Feature>
 
     <Feature Id="ServerFeature" Title="Server plugin" Level='1' AllowAdvertise='no' Display='expand' >
@@ -170,6 +188,27 @@
         <ComponentGroupRef Id="ServerComponents2022.1"/>
         <Condition Level="1000">
           <![CDATA[TEAMFOUNDATIONSERVERVERSION<>"2022.1"]]>
+        </Condition>
+      </Feature>
+      <Feature Id='Server2022.2Feature' Title='Plugin for Azure DevOps Server 2022.2' Level='1' AllowAdvertise='no'>
+        <ComponentGroupRef Id="NeutralServerComponents" />
+        <ComponentGroupRef Id="ServerComponents2022.2"/>
+        <Condition Level="1000">
+          <![CDATA[TEAMFOUNDATIONSERVERVERSION<>"2022.2"]]>
+        </Condition>
+      </Feature>
+      <Feature Id='Server2025Feature' Title='Plugin for Azure DevOps Server 2025' Level='1' AllowAdvertise='no'>
+        <ComponentGroupRef Id="NeutralServerComponents" />
+        <ComponentGroupRef Id="ServerComponents2025"/>
+        <Condition Level="1000">
+          <![CDATA[TEAMFOUNDATIONSERVERVERSION<>"2025"]]>
+        </Condition>
+      </Feature>
+      <Feature Id='Server2026Feature' Title='Plugin for Azure DevOps Server 2026' Level='1' AllowAdvertise='no'>
+        <ComponentGroupRef Id="NeutralServerComponents" />
+        <ComponentGroupRef Id="ServerComponents2026"/>
+        <Condition Level="1000">
+          <![CDATA[TEAMFOUNDATIONSERVERVERSION<>"2026"]]>
         </Condition>
       </Feature>
     </Feature>
@@ -270,6 +309,30 @@
         Root="HKLM" Key="SOFTWARE\Microsoft\TeamFoundationServer\19.0\InstalledComponents\ApplicationTier"
         Name="InstallPath" Type="raw" />
     </Property>
+    <Property Id="TEAMFOUNDATIONSERVER2025BUILD">
+      <RegistrySearch
+        Id="TeamFoundationServer20Build" Win64="yes"
+        Root="HKLM" Key="SOFTWARE\Microsoft\TeamFoundationServer\20.0"
+        Name="BuildNumber" Type="raw" />
+    </Property>
+    <Property Id="TEAMFOUNDATIONSERVER2025">
+      <RegistrySearch
+        Id="TeamFoundationServer20" Win64="yes"
+        Root="HKLM" Key="SOFTWARE\Microsoft\TeamFoundationServer\20.0\InstalledComponents\ApplicationTier"
+        Name="InstallPath" Type="raw" />
+    </Property>
+    <Property Id="TEAMFOUNDATIONSERVER2026BUILD">
+      <RegistrySearch
+        Id="TeamFoundationServer21Build" Win64="yes"
+        Root="HKLM" Key="SOFTWARE\Microsoft\TeamFoundationServer\21.0"
+        Name="BuildNumber" Type="raw" />
+    </Property>
+    <Property Id="TEAMFOUNDATIONSERVER2026">
+      <RegistrySearch
+        Id="TeamFoundationServer21" Win64="yes"
+        Root="HKLM" Key="SOFTWARE\Microsoft\TeamFoundationServer\21.0\InstalledComponents\ApplicationTier"
+        Name="InstallPath" Type="raw" />
+    </Property>
 
     <PropertyRef Id="WIX_IS_NETFRAMEWORK_451_OR_LATER_INSTALLED"/>
 
@@ -356,8 +419,23 @@
     <SetProperty Id="TEAMFOUNDATIONSERVERVERSION" Value="2022.1" Before="LaunchConditions" Action="TFSVer2022u1">
       <!-- 19.225.34108.1 (Azure DevOps Server 2022 Update 1 RC1) -->
       <!-- 19.225.34309.2 (Azure DevOps Server 2022 Update 1 RTW) -->
-      <!-- 19.235.34823.2 (AzureDevOpsServer2022.2 RC) -->
-      <![CDATA[TEAMFOUNDATIONSERVER2022 AND (TEAMFOUNDATIONSERVER2022BUILD = "19.225.34108.1" OR TEAMFOUNDATIONSERVER2022BUILD = "19.225.34309.2" OR TEAMFOUNDATIONSERVER2022BUILD = "19.235.34823.2")]]>
+      <![CDATA[TEAMFOUNDATIONSERVER2022 AND (TEAMFOUNDATIONSERVER2022BUILD = "19.225.34108.1" OR TEAMFOUNDATIONSERVER2022BUILD = "19.225.34309.2")]]>
+    </SetProperty>
+    <SetProperty Id="TEAMFOUNDATIONSERVERVERSION" Value="2022.2" Before="LaunchConditions" Action="TFSVer2022u2">
+      <!-- 19.235.34823.2 (Azure DevOps Server 2022.2 RC) -->
+      <!-- 19.235.35102.1 (Azure DevOps Server 2022.2 RTW, July 9, 2024) -->
+      <!--
+        Patches 1..8 (released through Feb 2026) are roll-up updates that keep the same
+        major.minor.build.revision baseline; if Microsoft publishes new build numbers for
+        future patches, append them to the OR list below.
+      -->
+      <![CDATA[TEAMFOUNDATIONSERVER2022 AND (TEAMFOUNDATIONSERVER2022BUILD = "19.235.34823.2" OR TEAMFOUNDATIONSERVER2022BUILD = "19.235.35102.1")]]>
+    </SetProperty>
+    <SetProperty Id="TEAMFOUNDATIONSERVERVERSION" Value="2025" Before="LaunchConditions" Action="TFSVer2025">
+      <![CDATA[TEAMFOUNDATIONSERVER2025]]>
+    </SetProperty>
+    <SetProperty Id="TEAMFOUNDATIONSERVERVERSION" Value="2026" Before="LaunchConditions" Action="TFSVer2026">
+      <![CDATA[TEAMFOUNDATIONSERVER2026]]>
     </SetProperty>
 
     <Directory Id="TARGETDIR" Name="SourceDir">
@@ -377,26 +455,32 @@
       </Directory>
     </Directory>
 
+    <SetDirectory Id="TFSINSTALLFOLDER" Value="[TEAMFOUNDATIONSERVER2026]" Action="SetTFSINSTALLFOLDER2026">
+      TEAMFOUNDATIONSERVER2026
+    </SetDirectory>
+    <SetDirectory Id="TFSINSTALLFOLDER" Value="[TEAMFOUNDATIONSERVER2025]" Action="SetTFSINSTALLFOLDER2025">
+      TEAMFOUNDATIONSERVER2025 AND NOT TEAMFOUNDATIONSERVER2026
+    </SetDirectory>
     <SetDirectory Id="TFSINSTALLFOLDER" Value="[TEAMFOUNDATIONSERVER2022]" Action="SetTFSINSTALLFOLDER2022">
-      TEAMFOUNDATIONSERVER2022
+      TEAMFOUNDATIONSERVER2022 AND NOT TEAMFOUNDATIONSERVER2025 AND NOT TEAMFOUNDATIONSERVER2026
     </SetDirectory>
     <SetDirectory Id="TFSINSTALLFOLDER" Value="[TEAMFOUNDATIONSERVER2020]" Action="SetTFSINSTALLFOLDER2020">
-      TEAMFOUNDATIONSERVER2020 AND NOT TEAMFOUNDATIONSERVER2022
+      TEAMFOUNDATIONSERVER2020 AND NOT TEAMFOUNDATIONSERVER2022 AND NOT TEAMFOUNDATIONSERVER2025 AND NOT TEAMFOUNDATIONSERVER2026
     </SetDirectory>
     <SetDirectory Id="TFSINSTALLFOLDER" Value="[TEAMFOUNDATIONSERVER2019]" Action="SetTFSINSTALLFOLDER2019">
-      TEAMFOUNDATIONSERVER2019 AND NOT TEAMFOUNDATIONSERVER2020 AND NOT TEAMFOUNDATIONSERVER2022
+      TEAMFOUNDATIONSERVER2019 AND NOT TEAMFOUNDATIONSERVER2020 AND NOT TEAMFOUNDATIONSERVER2022 AND NOT TEAMFOUNDATIONSERVER2025 AND NOT TEAMFOUNDATIONSERVER2026
     </SetDirectory>
     <SetDirectory Id="TFSINSTALLFOLDER" Value="[TEAMFOUNDATIONSERVER2018]" Action="SetTFSINSTALLFOLDER2018">
-      TEAMFOUNDATIONSERVER2018 AND NOT TEAMFOUNDATIONSERVER2019 AND NOT TEAMFOUNDATIONSERVER2020 AND NOT TEAMFOUNDATIONSERVER2022
+      TEAMFOUNDATIONSERVER2018 AND NOT TEAMFOUNDATIONSERVER2019 AND NOT TEAMFOUNDATIONSERVER2020 AND NOT TEAMFOUNDATIONSERVER2022 AND NOT TEAMFOUNDATIONSERVER2025 AND NOT TEAMFOUNDATIONSERVER2026
     </SetDirectory>
     <SetDirectory Id="TFSINSTALLFOLDER" Value="[TEAMFOUNDATIONSERVER2017]" Action="SetTFSINSTALLFOLDER2017">
-      TEAMFOUNDATIONSERVER2017 AND NOT TEAMFOUNDATIONSERVER2018 AND NOT TEAMFOUNDATIONSERVER2019 AND NOT TEAMFOUNDATIONSERVER2020 AND NOT TEAMFOUNDATIONSERVER2022
+      TEAMFOUNDATIONSERVER2017 AND NOT TEAMFOUNDATIONSERVER2018 AND NOT TEAMFOUNDATIONSERVER2019 AND NOT TEAMFOUNDATIONSERVER2020 AND NOT TEAMFOUNDATIONSERVER2022 AND NOT TEAMFOUNDATIONSERVER2025 AND NOT TEAMFOUNDATIONSERVER2026
     </SetDirectory>
     <SetDirectory Id="TFSINSTALLFOLDER" Value="[TEAMFOUNDATIONSERVER2015]" Action="SetTFSINSTALLFOLDER2015">
-      TEAMFOUNDATIONSERVER2015 AND NOT TEAMFOUNDATIONSERVER2017 AND NOT TEAMFOUNDATIONSERVER2018 AND NOT TEAMFOUNDATIONSERVER2019 AND NOT TEAMFOUNDATIONSERVER2020 AND NOT TEAMFOUNDATIONSERVER2022
+      TEAMFOUNDATIONSERVER2015 AND NOT TEAMFOUNDATIONSERVER2017 AND NOT TEAMFOUNDATIONSERVER2018 AND NOT TEAMFOUNDATIONSERVER2019 AND NOT TEAMFOUNDATIONSERVER2020 AND NOT TEAMFOUNDATIONSERVER2022 AND NOT TEAMFOUNDATIONSERVER2025 AND NOT TEAMFOUNDATIONSERVER2026
     </SetDirectory>
     <SetDirectory Id="TFSINSTALLFOLDER" Value="[TEAMFOUNDATIONSERVER2013]" Action="SetTFSINSTALLFOLDER2013">
-      TEAMFOUNDATIONSERVER2013 AND NOT TEAMFOUNDATIONSERVER2015 AND NOT TEAMFOUNDATIONSERVER2017 AND NOT TEAMFOUNDATIONSERVER2018 AND NOT TEAMFOUNDATIONSERVER2019 AND NOT TEAMFOUNDATIONSERVER2020 AND NOT TEAMFOUNDATIONSERVER2022
+      TEAMFOUNDATIONSERVER2013 AND NOT TEAMFOUNDATIONSERVER2015 AND NOT TEAMFOUNDATIONSERVER2017 AND NOT TEAMFOUNDATIONSERVER2018 AND NOT TEAMFOUNDATIONSERVER2019 AND NOT TEAMFOUNDATIONSERVER2020 AND NOT TEAMFOUNDATIONSERVER2022 AND NOT TEAMFOUNDATIONSERVER2025 AND NOT TEAMFOUNDATIONSERVER2026
     </SetDirectory>
 
   </Fragment>

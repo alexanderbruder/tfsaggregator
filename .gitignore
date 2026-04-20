@@ -160,3 +160,4 @@ nuget.exe
 /Aggregator.ConsoleApp/RuleSet1.ruleset
 
 extension/*.vsix
+/ADO/

@@ -37,6 +37,17 @@ namespace TFSAggregator.TfsSpecific
     /// </summary>
     public class WorkItemChangedEventHandler : ISubscriber
     {
+        static WorkItemChangedEventHandler()
+        {
+#if ADOS2022u2
+            // ADOS 2022.2 RTW removed the legacy Work Item Tracking client OM from
+            // Web Services\bin; the assemblies now live in Application Tier\Tools.
+            // The static constructor runs before any instance method, so by the time
+            // ProcessEvent is invoked the resolver can satisfy the type loads it triggers.
+            AssemblyResolver.EnsureRegistered();
+#endif
+        }
+
         public WorkItemChangedEventHandler()
         {
             // DON'T ADD ANYTHING HERE UNLESS YOU REALLY KNOW WHAT YOU ARE DOING.
