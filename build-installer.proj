@@ -12,6 +12,7 @@
 
   <PropertyGroup>
     <RunWixToolsOutOfProc Condition=" '$(PROCESSOR_ARCHITECTURE)'!='x86' ">true</RunWixToolsOutOfProc>
+    <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">ia64</Platform>
     <SetupProjectDir>$(MSBuildProjectDirectory)\Setup.Aggregator</SetupProjectDir>
     <OutputPath>$(SetupProjectDir)\bin\$(Configuration)\</OutputPath>
@@ -36,6 +37,10 @@
     <FullSemVer Condition=" '$(FullSemVer)' == '' ">0.2.3-alpha+local</FullSemVer>
     <!-- Defaults to global install -->
     <GitExe>git</GitExe>
+    <!-- Build latest supported version by default -->
+    <InstallerTfsVersion Condition=" '$(InstallerTfsVersion)' == '' ">2025</InstallerTfsVersion>
+    <!-- Set to true to build installer payload for all configured versions -->
+    <BuildAllTfsVersions Condition=" '$(BuildAllTfsVersions)' == '' ">false</BuildAllTfsVersions>
     <!-- skip process steps by setting False -->
     <BuildSolution>True</BuildSolution>
     <CollectFiles>True</CollectFiles>
@@ -53,67 +58,72 @@
     - MSBuild project files
   -->
   <ItemGroup>
-    <TfsVersion Include="2013" >
+    <TfsVersion Include="2013" Condition=" '$(BuildAllTfsVersions)' == 'true' or '$(InstallerTfsVersion)' == '2013' ">
       <Alt>2013</Alt>
       <Platform>Any CPU</Platform>
     </TfsVersion>
-    <TfsVersion Include="2015" >
+    <TfsVersion Include="2015" Condition=" '$(BuildAllTfsVersions)' == 'true' or '$(InstallerTfsVersion)' == '2015' ">
       <Alt>2015</Alt>
       <Platform>Any CPU</Platform>
       <ExtendedClientVersion>14.83.1</ExtendedClientVersion>
     </TfsVersion>
-    <TfsVersion Include="2015.1" >
+    <TfsVersion Include="2015.1" Condition=" '$(BuildAllTfsVersions)' == 'true' or '$(InstallerTfsVersion)' == '2015.1' ">
       <Alt>2015u1</Alt>
       <Platform>Any CPU</Platform>
       <ExtendedClientVersion>14.83.1</ExtendedClientVersion>
     </TfsVersion>
-    <TfsVersion Include="2015.2" >
+    <TfsVersion Include="2015.2" Condition=" '$(BuildAllTfsVersions)' == 'true' or '$(InstallerTfsVersion)' == '2015.2' ">
       <Alt>2015u2</Alt>
       <Platform>Any CPU</Platform>
       <ExtendedClientVersion>14.83.1</ExtendedClientVersion>
     </TfsVersion>
-    <TfsVersion Include="2017" >
+    <TfsVersion Include="2017" Condition=" '$(BuildAllTfsVersions)' == 'true' or '$(InstallerTfsVersion)' == '2017' ">
       <Alt>2017</Alt>
       <Platform>Any CPU</Platform>
       <ExtendedClientVersion>15.103.0-preview</ExtendedClientVersion>
     </TfsVersion>
-    <TfsVersion Include="2017.2" >
+    <TfsVersion Include="2017.2" Condition=" '$(BuildAllTfsVersions)' == 'true' or '$(InstallerTfsVersion)' == '2017.2' ">
       <Alt>2017u2</Alt>
       <Platform>Any CPU</Platform>
       <ExtendedClientVersion>15.112.1</ExtendedClientVersion>
     </TfsVersion>
-    <TfsVersion Include="2018" >
+    <TfsVersion Include="2018" Condition=" '$(BuildAllTfsVersions)' == 'true' or '$(InstallerTfsVersion)' == '2018' ">
       <Alt>2018</Alt>
       <Platform>Any CPU</Platform>
       <ExtendedClientVersion>15.122.1-preview</ExtendedClientVersion>
     </TfsVersion>
-    <TfsVersion Include="2019" >
+    <TfsVersion Include="2019" Condition=" '$(BuildAllTfsVersions)' == 'true' or '$(InstallerTfsVersion)' == '2019' ">
       <Alt>2019</Alt>
       <Platform>Any CPU</Platform>
       <ExtendedClientVersion>16.143.0-preview</ExtendedClientVersion>
     </TfsVersion>
-    <TfsVersion Include="2019.1" >
+    <TfsVersion Include="2019.1" Condition=" '$(BuildAllTfsVersions)' == 'true' or '$(InstallerTfsVersion)' == '2019.1' ">
       <Alt>2019u1</Alt>
       <Platform>Any CPU</Platform>
       <ExtendedClientVersion>16.153.0-preview</ExtendedClientVersion>
     </TfsVersion>
-    <TfsVersion Include="2020" >
+    <TfsVersion Include="2020" Condition=" '$(BuildAllTfsVersions)' == 'true' or '$(InstallerTfsVersion)' == '2020' ">
       <Alt>2010</Alt>
       <Platform>Any CPU</Platform>
       <ExtendedClientVersion>16.170.0-preview</ExtendedClientVersion>
     </TfsVersion>
-    <TfsVersion Include="2022" >
+    <TfsVersion Include="2022" Condition=" '$(BuildAllTfsVersions)' == 'true' or '$(InstallerTfsVersion)' == '2022' ">
       <Alt>2022</Alt>
       <Platform>Any CPU</Platform>
       <ExtendedClientVersion>16.205.0-preview</ExtendedClientVersion>
     </TfsVersion>
-    <TfsVersion Include="2022.1" >
+    <TfsVersion Include="2022.1" Condition=" '$(BuildAllTfsVersions)' == 'true' or '$(InstallerTfsVersion)' == '2022.1' ">
       <Alt>2022u1</Alt>
       <Platform>Any CPU</Platform>
       <ExtendedClientVersion>19.227.0-preview</ExtendedClientVersion>
     </TfsVersion>
-    <TfsVersion Include="2022.2" >
+    <TfsVersion Include="2022.2" Condition=" '$(BuildAllTfsVersions)' == 'true' or '$(InstallerTfsVersion)' == '2022.2' ">
       <Alt>2022u2</Alt>
+      <Platform>Any CPU</Platform>
+      <ExtendedClientVersion>19.225.2</ExtendedClientVersion>
+    </TfsVersion>
+    <TfsVersion Include="2025" Condition=" '$(BuildAllTfsVersions)' == 'true' or '$(InstallerTfsVersion)' == '2025' ">
+      <Alt>2025</Alt>
       <Platform>Any CPU</Platform>
       <ExtendedClientVersion>19.225.2</ExtendedClientVersion>
     </TfsVersion>

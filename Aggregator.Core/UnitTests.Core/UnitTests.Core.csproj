@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' and '$(IsWebHooks)' == 'true' ">Debug</Configuration>
-    <Configuration Condition=" '$(Configuration)' == '' and '$(IsWebHooks)' != 'true' ">Debug-2018</Configuration>
+    <Configuration Condition=" ('$(Configuration)' == '' or '$(Configuration)' == 'Debug') and '$(IsWebHooks)' != 'true' ">Debug-2025</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{D8C3CC34-8057-4FDA-AE91-07A5223A7B68}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -12,7 +12,7 @@
     <TargetFramework Condition="'$(TargetFramework)' == ''">net461</TargetFramework>
     <FileAlignment>512</FileAlignment>
     <TestProjectType>UnitTest</TestProjectType>
-    <Configurations>Debug;Release;Debug-2013;Release-2013;Debug-2015;Release-2015;Debug-2015.1;Release-2015.1;Debug-2015.2;Release-2015.2;Debug-2017;Release-2017;Debug-2017.2;Release-2017.2;Debug-2018;Release-2018;Debug-webhooks;Release-webhooks;Debug-2019;Release-2019;Debug-2019.1;Release-2019.1;Debug-2020;Release-2020;Debug-2022;Release-2022;Debug-2022.1;Release-2022.1;Debug-2022.2;Release-2022.2</Configurations>
+    <Configurations>Debug;Release;Debug-2013;Release-2013;Debug-2015;Release-2015;Debug-2015.1;Release-2015.1;Debug-2015.2;Release-2015.2;Debug-2017;Release-2017;Debug-2017.2;Release-2017.2;Debug-2018;Release-2018;Debug-webhooks;Release-webhooks;Debug-2019;Release-2019;Debug-2019.1;Release-2019.1;Debug-2020;Release-2020;Debug-2022;Release-2022;Debug-2022.1;Release-2022.1;Debug-2022.2;Release-2022.2;Debug-2025;Release-2025</Configurations>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>..\..\tfs-aggregator.ruleset</CodeAnalysisRuleSet>
@@ -118,6 +118,12 @@
     <TargetFramework>net480</TargetFramework>
     <DebugType>full</DebugType>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-2025|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <TfsVersion>2025</TfsVersion>
+    <TargetFramework>net480</TargetFramework>
+    <DebugType>full</DebugType>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release-2017|AnyCPU'">
     <TfsVersion>2017</TfsVersion>
     <TargetFramework>net461</TargetFramework>
@@ -209,6 +215,12 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-2022.2|AnyCPU'">
     <TfsVersion>2022.2</TfsVersion>
+    <TargetFramework>net480</TargetFramework>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-2025|AnyCPU'">
+    <TfsVersion>2025</TfsVersion>
     <TargetFramework>net480</TargetFramework>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>

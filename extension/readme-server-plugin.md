@@ -8,7 +8,7 @@
 >
 > We won't do any major investment in this Plugin version and our bandwidth for support is limited.
 
-This [**server side plugin**](https://github.com/tfsaggregator/tfsaggregator/releases), for TFS 2013 update 2 up to TFS 2018.3 and Azure DevOps Server 2019, 2020, 2022 up to 2022.0.1 and 2022.1 enables running custom script when Work Items change, allowing dynamic calculation of field values in TFS and more. (For example: Dev work + Test Work = Total Work).
+This [**server side plugin**](https://github.com/tfsaggregator/tfsaggregator/releases), for TFS 2013 update 2 up to TFS 2018.3 and Azure DevOps Server 2019, 2020, 2022 up to 2022.2, and 2025 enables running custom script when Work Items change, allowing dynamic calculation of field values in TFS and more. (For example: Dev work + Test Work = Total Work).
 
 # Documentation
 The complete documentation is available on the [project's Documentation Site](https://tfsaggregator.github.io/).
